@@ -6,14 +6,29 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     
     var command = "empty";
+    var value = "empty"
     var status_code = 0;
 
-    function performActionAfterAlexa() {
+    function alexa() {
         console.log("Alexa detected! Performing an action...");
         command = "empty"
         //asr
         status_code = 1;
         recognition.stop();
+    }
+
+    function create() {
+        console.log("Create New Record...");
+        command = "empty"
+        //asr
+        status_code = 2;
+        recognition.stop();
+    }
+
+    function inputValidation(string) {
+        console.log("Checking field...",string);
+        //asr
+        status_code = 2;
     }
 
     recognition.lang = 'en-US';
@@ -31,12 +46,21 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         console.log(`Recognized: ${transcript}`);
         if (transcript.toLowerCase().includes("alexa")) {
             console.log("alexa");
-            performActionAfterAlexa();
+            alexa();
         }
         startButton.disabled = true; // Re-enable button after recognition
         recognition.stop();
         if (status_code == 1){
             console.log(`Command: ${transcript}`);
+            if (transcript.toLowerCase().includes("create")){
+                create();
+            }
+        }
+        if (status_code == 2){
+            console.log(`Fill each field: ${transcript}`);
+            value = transcript;
+            inputValidation(value);
+
         }
     };
 
