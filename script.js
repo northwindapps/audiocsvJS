@@ -5,13 +5,17 @@ const startButton = document.getElementById("start");
 if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     
-    var command = "empty";
-    var value = "empty"
     var status_code = 0;
+    var client_info = {
+        client_name: "empty",
+        client_age: "empty",
+        client_sex: "empty",
+        client_height: "empty",
+        client_weight: "empty"
+    };
 
     function alexa() {
         console.log("Alexa detected! Performing an action...");
-        command = "empty"
         //asr
         status_code = 1;
         recognition.stop();
@@ -19,16 +23,21 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
 
     function create() {
         console.log("Create New Record...");
-        command = "empty"
         //asr
         status_code = 2;
         recognition.stop();
     }
 
     function inputValidation(string) {
-        console.log("Checking field...",string);
-        //asr
-        status_code = 2;
+        if (string.length > 0) {
+            // Search for the first empty value in client_info
+            for (const [key, value] of Object.entries(client_info)) {
+                if (value === "empty") {
+                    client_info[key] = string; // Set the first empty property to `string`
+                    break;
+                }
+            }
+        }
     }
 
     recognition.lang = 'en-US';
@@ -54,13 +63,14 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             console.log(`Command: ${transcript}`);
             if (transcript.toLowerCase().includes("create")){
                 create();
+                return;
             }
         }
         if (status_code == 2){
             console.log(`Fill each field: ${transcript}`);
-            value = transcript;
-            inputValidation(value);
-
+            inputValidation(transcript);
+            console.log(client_info);
+            return;
         }
     };
 
