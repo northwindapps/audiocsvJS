@@ -1,0 +1,23 @@
+/* Basic styling for the upload area */
+.upload-area {
+    width: 300px;
+    height: 200px;
+    border: 2px dashed #007bff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  .upload-area p {
+    margin: 0;
+  }
+  
+  .upload-area span {
+    text-decoration: underline;
+  }
+  

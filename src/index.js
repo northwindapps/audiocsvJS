@@ -2,6 +2,106 @@ import { v4 as uuidv4 } from "uuid";
 
 console.log(uuidv4());
 
+const uploadArea = document.getElementById("uploadArea");
+const fileInput = document.getElementById("fileInput");
+var csvcontent = "";
+var client_info = {};
+
+// Click event to open file dialog
+uploadArea.addEventListener("click", () => fileInput.click());
+
+// Drag events
+uploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadArea.classList.add("dragging");
+});
+
+uploadArea.addEventListener("dragleave", () => {
+  uploadArea.classList.remove("dragging");
+});
+
+// Drop event
+uploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove("dragging");
+  const files = e.dataTransfer.files;
+  handleFiles(files);
+});
+
+// File input change event for browsers without drag-and-drop
+fileInput.addEventListener("change", (e) => {
+  const files = e.target.files;
+  handleFiles(files);
+});
+
+function createClientInfo(headers) {
+    const client_info = {};
+  
+    headers.forEach(header => {
+      client_info[header] = "empty"; // Initialize each header item with a default value, e.g., "empty"
+    });
+  
+    return client_info;
+  }
+
+function handleFiles(files) {
+    for (const file of files) {
+      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        readCSV(file);
+      } else {
+        console.log("Not a CSV file:", file.name);
+      }
+    }
+  }
+
+
+function readCSV(file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const content = e.target.result;
+        const rows = content.split("\n"); // Split file content into rows
+        const header = rows[0].split(",").filter(col => col.trim() !== ""); // Remove any trailing empty values
+
+        console.log("CSV Header:", header);
+        console.log("Number of Columns:", header.length);
+        client_info = createClientInfo(header);
+        csvcontent = content;
+    };
+
+    reader.readAsText(file);
+}
+  
+function appendRow(newRow){
+    // New row data to append
+    const newRowString = newRow.join(",") + "\n"; // Convert new row array to CSV format string
+    
+    if (csvcontent !== ""){
+        csvcontent += newRowString; // Append new row to existing content
+
+        console.log("Updated CSV Content:");
+        console.log(csvcontent);
+    }
+}
+
+// Function to trigger the CSV download
+function downloadCSV(content, filename = "file.csv") {
+    const blob = new Blob([content], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+  
+// Event listener for the download button
+document.getElementById("downloadButton").addEventListener("click", function () {
+    downloadCSV(csvcontent, "data.csv");
+});
+
 const startButton = document.getElementById("start");
 // const resultParagraph = document.getElementById("result");
 
@@ -36,16 +136,9 @@ function speakText(text, callback) {
 // Check for browser support
 if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    
     var status_code = 0;
     var isEnd = false;
-    var client_info = {
-        name: "empty",
-        age: "empty",
-        sex: "empty",
-        height: "empty",
-        weight: "empty"
-    };
+    
 
     // Alexa function
     function alexa() {
@@ -66,6 +159,9 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
     function create() {
         console.log("Create New Record...");
         
+        //Init client_info
+        client_info = createClientInfo(Object.keys(client_info));
+
         // Stop recognition and perform TTS
         status_code = 2;
         recognition.stop();
@@ -102,6 +198,8 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
                     //next input
                     status_code = 1
                 });
+
+                appendRow(Object.values(client_info));
             }
         }
     }
@@ -160,6 +258,8 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         });
         recognition.start(); // Start the recognition process
     };
+
+
 } else {
     alert("Sorry, your browser does not support the Web Speech API.");
 }
