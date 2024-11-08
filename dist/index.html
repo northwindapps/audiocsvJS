@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wake Word Detection</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Wake Word Detection Demo</h1>
   <button id="start">Start Listening</button>
   <!-- <script type="module" src="./app.js"></script> -->
   <!-- Link to your JavaScript file -->
+  <div class="upload-area" id="uploadArea">
+    <p>Drag & drop files here, or <span>click to select</span></p>
+    <input type="file" id="fileInput" multiple style="display: none;">
+  </div>
   <script src="./main.js"></script>
 </body>
 </html>
