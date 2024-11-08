@@ -84,6 +84,24 @@ function appendRow(newRow){
     }
 }
 
+// Function to trigger the CSV download
+function downloadCSV(content, filename = "file.csv") {
+    const blob = new Blob([content], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+  
+// Event listener for the download button
+document.getElementById("downloadButton").addEventListener("click", function () {
+    downloadCSV(csvcontent, "data.csv");
+});
+
 const startButton = document.getElementById("start");
 // const resultParagraph = document.getElementById("result");
 
