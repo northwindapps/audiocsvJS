@@ -4,8 +4,16 @@ console.log(uuidv4());
 
 const uploadArea = document.getElementById("uploadArea");
 const fileInput = document.getElementById("fileInput");
+const fileNameDisplay = document.getElementById("fileName");
+const csvKeyNameDisplay = document.getElementById("csvKeyName");
+const startButton = document.getElementById("start");
+const downloadButton = document.getElementById("downloadButton");
+
 var csvcontent = "";
 var client_info = {};
+
+startButton.disabled = true;
+downloadButton.disabled = true;
 
 // Click event to open file dialog
 uploadArea.addEventListener("click", () => fileInput.click());
@@ -34,26 +42,29 @@ fileInput.addEventListener("change", (e) => {
   handleFiles(files);
 });
 
-function createClientInfo(headers) {
-    const client_info = {};
-  
-    headers.forEach(header => {
-      client_info[header] = "empty"; // Initialize each header item with a default value, e.g., "empty"
-    });
-  
-    return client_info;
-  }
-
 function handleFiles(files) {
     for (const file of files) {
-      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        fileNameDisplay.textContent = `Uploaded File: ${file.name}`;
+        startButton.disabled = false;
+        downloadButton.disabled = false;
         readCSV(file);
-      } else {
+        } else {
+        fileNameDisplay.textContent = "Please upload a valid CSV file.";
         console.log("Not a CSV file:", file.name);
-      }
+        }
     }
-  }
+}
 
+function createClientInfo(headers) {
+    const client_info = {};
+
+    headers.forEach(header => {
+        client_info[header] = "empty"; // Initialize each header item with a default value, e.g., "empty"
+    });
+
+    return client_info;
+}
 
 function readCSV(file) {
     const reader = new FileReader();
@@ -98,11 +109,11 @@ function downloadCSV(content, filename = "file.csv") {
 }
   
 // Event listener for the download button
-document.getElementById("downloadButton").addEventListener("click", function () {
+downloadButton.addEventListener("click", function () {
     downloadCSV(csvcontent, "data.csv");
 });
 
-const startButton = document.getElementById("start");
+
 // const resultParagraph = document.getElementById("result");
 
 // Initialize the voice once
@@ -171,6 +182,13 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             isEnd = false;
             recognition.start();
         });
+
+        const clientInfoText = Object.entries(client_info)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(", ");
+        csvKeyNameDisplay.textContent = `${clientInfoText}`;
+
+
     }
 
     function inputValidation(string) {
@@ -221,6 +239,7 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         if (transcript.toLowerCase().includes("alexa")) {
             console.log("alexa");
             alexa();
+            csvKeyNameDisplay.textContent = "Select a command: CREATE, EDIT, or DELETE.";
         }
         startButton.disabled = true; // Re-enable button after recognition
         recognition.stop();
@@ -234,7 +253,11 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         if (status_code == 2){
             console.log(`Fill each field: ${transcript}`);
             inputValidation(transcript);
-            console.log(client_info);
+            // console.log(client_info);
+            const clientInfoText = Object.entries(client_info)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(", ");
+            csvKeyNameDisplay.textContent = `${clientInfoText}`;
             return;
         }
     };

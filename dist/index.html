@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wake Word Detection</title>
+  <title>AudioCSV Demo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Wake Word Detection Demo</h1>
+  <h1>AudioCSV Demo</h1>
+  <h3 id="csvKeyName"></h3>
   <button id="start">Start Listening</button>
+  <button id="downloadButton">Download CSV</button>
   <!-- <script type="module" src="./app.js"></script> -->
   <!-- Link to your JavaScript file -->
+  <span id="fileName"></span>
   <div class="upload-area" id="uploadArea">
     <p>Drag & drop files here, or <span>click to select</span></p>
     <input type="file" id="fileInput" multiple style="display: none;">
   </div>
-  <button id="downloadButton">Download CSV</button>
+  
   <script src="./main.js"></script>
 </body>
 </html>
