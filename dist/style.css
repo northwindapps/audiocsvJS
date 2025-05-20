@@ -20,4 +20,32 @@
   .upload-area span {
     text-decoration: underline;
   }
+
+  /* Target all table header (th) and table data (td) cells */
+th, td {
+    width: 100px;
+    /* Optional: If you also want a fixed height to make them square or uniform */
+    /* height: 100px; */
+    /* Optional: For better text presentation if content is added */
+    /* text-align: center; */
+    /* vertical-align: middle; */
+    /* padding: 5px; */ /* Add some internal spacing if desired */
+}
+
+/* Optional: You can move the table's margin-top from inline style to here */
+table {
+    margin-top: 20px;
+    /* For more predictable cell widths, especially with varying content,
+       you might want to add table-layout: fixed.
+       If you use this, the width of the columns is determined by the
+       width of the cells in the first row (or <col> elements).
+    */
+    /* table-layout: fixed; */
+
+    /* If you were defining borders in CSS instead of the HTML border="1" attribute,
+       you'd typically use border-collapse: collapse; here
+       and add 'border: 1px solid black;' to th, td.
+    */
+    /* border-collapse: collapse; */
+}
   

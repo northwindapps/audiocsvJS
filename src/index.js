@@ -2,59 +2,63 @@ import { v4 as uuidv4 } from "uuid";
 
 console.log(uuidv4());
 
-const uploadArea = document.getElementById("uploadArea");
-const fileInput = document.getElementById("fileInput");
-const fileNameDisplay = document.getElementById("fileName");
-const csvKeyNameDisplay = document.getElementById("csvKeyName");
+// const uploadArea = document.getElementById("uploadArea");
+// const fileInput = document.getElementById("fileInput");
+// const fileNameDisplay = document.getElementById("fileName");
+// const csvKeyNameDisplay = document.getElementById("csvKeyName");
+const cellindexDisplay = document.getElementById("cellindex");
+const transcriptionDisplay = document.getElementById("transcription");
 const startButton = document.getElementById("start");
 const downloadButton = document.getElementById("downloadButton");
 
 var csvcontent = "";
 var client_info = {};
+var row_num = 0;
+var col_num = 1;
 
-startButton.disabled = true;
+startButton.disabled = false;
 downloadButton.disabled = true;
 
 // Click event to open file dialog
-uploadArea.addEventListener("click", () => fileInput.click());
+// uploadArea.addEventListener("click", () => fileInput.click());
 
-// Drag events
-uploadArea.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  uploadArea.classList.add("dragging");
-});
+// // Drag events
+// uploadArea.addEventListener("dragover", (e) => {
+//   e.preventDefault();
+//   uploadArea.classList.add("dragging");
+// });
 
-uploadArea.addEventListener("dragleave", () => {
-  uploadArea.classList.remove("dragging");
-});
+// uploadArea.addEventListener("dragleave", () => {
+//   uploadArea.classList.remove("dragging");
+// });
 
 // Drop event
-uploadArea.addEventListener("drop", (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove("dragging");
-  const files = e.dataTransfer.files;
-  handleFiles(files);
-});
+// uploadArea.addEventListener("drop", (e) => {
+//   e.preventDefault();
+//   uploadArea.classList.remove("dragging");
+//   const files = e.dataTransfer.files;
+//   handleFiles(files);
+// });
 
 // File input change event for browsers without drag-and-drop
-fileInput.addEventListener("change", (e) => {
-  const files = e.target.files;
-  handleFiles(files);
-});
+// fileInput.addEventListener("change", (e) => {
+//   const files = e.target.files;
+//   handleFiles(files);
+// });
 
-function handleFiles(files) {
-    for (const file of files) {
-        if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-        fileNameDisplay.textContent = `Uploaded File: ${file.name}`;
-        startButton.disabled = false;
-        downloadButton.disabled = false;
-        readCSV(file);
-        } else {
-        fileNameDisplay.textContent = "Please upload a valid CSV file.";
-        console.log("Not a CSV file:", file.name);
-        }
-    }
-}
+// function handleFiles(files) {
+//     for (const file of files) {
+//         if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+//         fileNameDisplay.textContent = `Uploaded File: ${file.name}`;
+//         startButton.disabled = false;
+//         downloadButton.disabled = false;
+//         readCSV(file);
+//         } else {
+//         fileNameDisplay.textContent = "Please upload a valid CSV file.";
+//         console.log("Not a CSV file:", file.name);
+//         }
+//     }
+// }
 
 function createClientInfo(headers) {
     const client_info = {};
@@ -159,8 +163,9 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         status_code = 1;
         recognition.stop();
         isEnd = true;
+        cellindexDisplay.textContent = String(col_num) + "," + String(row_num+1);
 
-        speakText("Select mode from create, edit or delete.", () => {
+        speakText("Input any value, say Okay to enter.", () => {
             isEnd = false;
             recognition.start();
         });
@@ -186,7 +191,7 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const clientInfoText = Object.entries(client_info)
                     .map(([key, value]) => `${key}: ${value}`)
                     .join(", ");
-        csvKeyNameDisplay.textContent = `${clientInfoText}`;
+        // csvKeyNameDisplay.textContent = `${clientInfoText}`;
 
 
     }
@@ -221,6 +226,25 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             }
         }
     }
+
+    function inputValue(value) {
+        const myTable = document.querySelector('table'); // Assuming it's the only table or you select it more specifically
+
+        if (myTable && myTable.tBodies[0] && myTable.tBodies[0].rows[row_num].cells[col_num]) {
+            // myTable.tBodies[0] is the first <tbody>
+            // .rows[0] is the first <tr> within that <tbody> (row "1")
+            // .cells[1] is the second cell in that row.
+            // Why cells[1]? Because cells[0] is the <th> with "1" (the row header).
+            const cell = myTable.tBodies[0].rows[row_num].cells[col_num];
+
+            if (cell) {
+                cell.textContent = value;
+            }
+        }else{
+            row_num = 0;
+            col_num = 1;
+        }
+    };
     
 
     recognition.lang = 'en-US';
@@ -239,16 +263,53 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         if (transcript.toLowerCase().includes("alexa")) {
             console.log("alexa");
             alexa();
-            csvKeyNameDisplay.textContent = "Select a command: CREATE, EDIT, or DELETE.";
+            // csvKeyNameDisplay.textContent = "Select a command: CREATE, EDIT, or DELETE.";
         }
         startButton.disabled = true; // Re-enable button after recognition
         recognition.stop();
         if (status_code == 1){
             console.log(`Command: ${transcript}`);
+            cellindexDisplay.textContent = String(col_num) + "," + String(row_num+1);
+
             if (transcript.toLowerCase().includes("create")){
                 create();
                 return;
             }
+
+            if (transcript.toLowerCase().includes("okay")){
+                col_num += 1;
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("ok")){
+                col_num += 1;
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("alexa")){
+                transcriptionDisplay.textContent = 'What word do you input?';
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("next") && transcript.toLowerCase().includes("role")){
+                row_num += 1;
+                col_num = 1;
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("quit")){
+                status_code = 0;
+                recognition.stop();
+                isEnd = false;
+                transcriptionDisplay.textContent = 'Say Alexa, to start';
+                startButton.disabled = false;
+                return;
+            }
+
+            inputValue(`${transcript}`);
+            transcriptionDisplay.textContent = `${transcript}`;
+
+            
         }
         if (status_code == 2){
             console.log(`Fill each field: ${transcript}`);
@@ -257,7 +318,7 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             const clientInfoText = Object.entries(client_info)
                     .map(([key, value]) => `${key}: ${value}`)
                     .join(", ");
-            csvKeyNameDisplay.textContent = `${clientInfoText}`;
+            // csvKeyNameDisplay.textContent = `${clientInfoText}`;
             return;
         }
     };

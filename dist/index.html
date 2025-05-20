@@ -7,17 +7,57 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>AudioCSV Demo</h1>
-  <h3 id="csvKeyName"></h3>
+  <h1>AudioCSV v1.2</h1>
+  <h3 id="cellindex"></h3>
+  <h5 id="transcription"></h3>
   <button id="start">Start Listening</button>
   <button id="downloadButton">Download CSV</button>
   <!-- <script type="module" src="./app.js"></script> -->
   <!-- Link to your JavaScript file -->
   <span id="fileName"></span>
-  <div class="upload-area" id="uploadArea">
+
+  <!-- Table with Numbered Row Headers and Alphabetical Column Headers -->
+  <table border="1" style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th></th> <!-- This top-left cell is empty (corner) -->
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+        <th>D</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">1</th> <!-- Row Header: 1 -->
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">2</th> <!-- Row Header: 2 -->
+         <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th> <!-- Row Header: 3 -->
+         <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- End of Table -->
+
+
+  <!-- <div class="upload-area" id="uploadArea">
     <p>Drag & drop files here, or <span>click to select</span></p>
     <input type="file" id="fileInput" multiple style="display: none;">
-  </div>
+  </div> -->
   
   <script src="./main.js"></script>
 </body>
