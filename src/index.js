@@ -163,12 +163,21 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         status_code = 1;
         recognition.stop();
         isEnd = true;
-        cellindexDisplay.textContent = String(col_num) + "," + String(row_num+1);
+        cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
 
         speakText("Input any value, say Okay to enter.", () => {
             isEnd = false;
             recognition.start();
         });
+    }
+
+    function colconvert(col_num){
+        let ary = ['','A','B','C','D']
+        let idx = parseInt(col_num);
+        if (idx > ary.length-1){
+            ary = 1;
+        }
+        return  ary[idx];
     }
 
     // Create function
@@ -269,8 +278,8 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         recognition.stop();
         if (status_code == 1){
             console.log(`Command: ${transcript}`);
-            cellindexDisplay.textContent = String(col_num) + "," + String(row_num+1);
-
+            cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
+                
             if (transcript.toLowerCase().includes("create")){
                 create();
                 return;
@@ -278,11 +287,13 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
 
             if (transcript.toLowerCase().includes("okay")){
                 col_num += 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
             if (transcript.toLowerCase().includes("ok")){
                 col_num += 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
@@ -294,6 +305,25 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             if (transcript.toLowerCase().includes("next") && transcript.toLowerCase().includes("role")){
                 row_num += 1;
                 col_num = 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("next") && transcript.toLowerCase().includes("column")){
+                col_num = 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("previous") && transcript.toLowerCase().includes("role")){
+                row_num -= 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
+                return;
+            }
+
+            if (transcript.toLowerCase().includes("previous") && transcript.toLowerCase().includes("column")){
+                col_num -= 1;
+                cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 

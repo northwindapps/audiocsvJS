@@ -1,3 +1,5 @@
+To bundle js files:  npx webpack --mode production 
+  
 To run locally: use VSCode Live Server.
 
-DEMO: https://speechtable.net/audiocsvJS/dist/index.html
+DEMO: https://speechtable.net
