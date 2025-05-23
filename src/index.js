@@ -15,6 +15,8 @@ var csvcontent = "";
 var client_info = {};
 var row_num = 0;
 var col_num = 1;
+var nato_code = ["alpha","bravo","charlie","delta"]
+var last_transcript = ""
 
 startButton.disabled = false;
 downloadButton.disabled = true;
@@ -165,7 +167,7 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         isEnd = true;
         cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
 
-        speakText("Input any value, say Okay to enter.", () => {
+        speakText("Initiate Listening Mode. Say something,then say Okay to enter.", () => {
             isEnd = false;
             recognition.start();
         });
@@ -175,6 +177,9 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         let ary = ['','A','B','C','D']
         let idx = parseInt(col_num);
         if (idx > ary.length-1){
+            ary = 1;
+        }
+        if (idx == 0){
             ary = 1;
         }
         return  ary[idx];
@@ -255,6 +260,9 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         }
     };
     
+    function replaceWordNumber(transcript) {
+        return transcript.toLowerCase().replace('one', '1').replace('two', '2').replace('three', '3').replace('four', '4').replace('five', '5').replace('six', '6').replace('seven', '7').replace('eight', '8').replace('nine', '9').replace('zero', '10');
+    }
 
     recognition.lang = 'en-US';
     recognition.continuous = false; // Set to true for continuous recognition
@@ -280,54 +288,65 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             console.log(`Command: ${transcript}`);
             cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 
-            if (transcript.toLowerCase().includes("create")){
+            if (transcript.toLowerCase().startsWith("create")){
                 create();
                 return;
             }
 
-            if (transcript.toLowerCase().includes("okay")){
+            if (transcript.toLowerCase().startsWith("revert")){
+                inputValue(last_transcript);
+                return;
+            }
+
+            if (transcript.toLowerCase().startsWith("okay")){
                 col_num += 1;
+                if (col_num > nato_code.length-1){
+                    col_num = 1;
+                }
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("ok")){
+            if (transcript.toLowerCase().startsWith("ok")){
                 col_num += 1;
+                if (col_num > nato_code.length-1){
+                    col_num = 1;
+                }
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("alexa")){
-                transcriptionDisplay.textContent = 'What word do you input?';
+            if (transcript.toLowerCase().startsWith("alexa")){
+                transcriptionDisplay.textContent = 'Initiate Listening Mode. Say something,then say Okay to enter.';
                 return;
             }
 
-            if (transcript.toLowerCase().includes("next") && transcript.toLowerCase().includes("role")){
+            if (transcript.toLowerCase().startsWith("next") && transcript.toLowerCase().includes("role")){
                 row_num += 1;
                 col_num = 1;
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("next") && transcript.toLowerCase().includes("column")){
+            if (transcript.toLowerCase().startsWith("next") && transcript.toLowerCase().includes("column")){
                 col_num = 1;
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("previous") && transcript.toLowerCase().includes("role")){
+            if (transcript.toLowerCase().startsWith("previous") && transcript.toLowerCase().includes("role")){
                 row_num -= 1;
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("previous") && transcript.toLowerCase().includes("column")){
+            if (transcript.toLowerCase().startsWith("previous") && transcript.toLowerCase().includes("column")){
                 col_num -= 1;
                 cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num+1);
                 return;
             }
 
-            if (transcript.toLowerCase().includes("quit")){
+            if (transcript.toLowerCase().startsWith("quit")){
                 status_code = 0;
                 recognition.stop();
                 isEnd = false;
@@ -335,9 +354,29 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
                 startButton.disabled = false;
                 return;
             }
+       
+            for (let i = 0; i < nato_code.length; i++) {
+                var isCellAddress = false;
+                if (transcript.toLowerCase().includes(nato_code[i].toLowerCase())) {
+                    isCellAddress = true;
+                    let ary_idx = i + 1;
+                    col_num = ary_idx;
+                    var isInt = transcript.toLowerCase().replace(nato_code[i].toLowerCase(), '').replace(/\s/g, '');
+                    isInt = replaceWordNumber(isInt);
+                    let parsedInt = parseInt(isInt);
+                    if (!isNaN(parsedInt)) {
+                        console.log(parsedInt);
+                        row_num = parsedInt - 1;
+                    }
 
+                    cellindexDisplay.textContent = "cell: " + String(colconvert(col_num)) +  String(row_num + 1);
+                    return;
+                }
+            }
+               
             inputValue(`${transcript}`);
             transcriptionDisplay.textContent = `${transcript}`;
+            last_transcript = `${transcript}`;
 
             
         }
