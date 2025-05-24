@@ -11,56 +11,15 @@ const transcriptionDisplay = document.getElementById("transcription");
 const startButton = document.getElementById("start");
 const downloadButton = document.getElementById("downloadButton");
 
-var csvcontent = "";
 var client_info = {};
 var row_num = 0;
 var col_num = 1;
 var nato_code = ["alpha","bravo","charlie","delta"]
 var last_transcript = ""
+var source_array = Array.from({ length: 33 }, () => Array(nato_code.length).fill(""));
 
 startButton.disabled = false;
-downloadButton.disabled = true;
-
-// Click event to open file dialog
-// uploadArea.addEventListener("click", () => fileInput.click());
-
-// // Drag events
-// uploadArea.addEventListener("dragover", (e) => {
-//   e.preventDefault();
-//   uploadArea.classList.add("dragging");
-// });
-
-// uploadArea.addEventListener("dragleave", () => {
-//   uploadArea.classList.remove("dragging");
-// });
-
-// Drop event
-// uploadArea.addEventListener("drop", (e) => {
-//   e.preventDefault();
-//   uploadArea.classList.remove("dragging");
-//   const files = e.dataTransfer.files;
-//   handleFiles(files);
-// });
-
-// File input change event for browsers without drag-and-drop
-// fileInput.addEventListener("change", (e) => {
-//   const files = e.target.files;
-//   handleFiles(files);
-// });
-
-// function handleFiles(files) {
-//     for (const file of files) {
-//         if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-//         fileNameDisplay.textContent = `Uploaded File: ${file.name}`;
-//         startButton.disabled = false;
-//         downloadButton.disabled = false;
-//         readCSV(file);
-//         } else {
-//         fileNameDisplay.textContent = "Please upload a valid CSV file.";
-//         console.log("Not a CSV file:", file.name);
-//         }
-//     }
-// }
+downloadButton.disabled = false;
 
 function createClientInfo(headers) {
     const client_info = {};
@@ -72,40 +31,38 @@ function createClientInfo(headers) {
     return client_info;
 }
 
-function readCSV(file) {
-    const reader = new FileReader();
+// function readCSV(file) {
+//     const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const content = e.target.result;
-        const rows = content.split("\n"); // Split file content into rows
-        const header = rows[0].split(",").filter(col => col.trim() !== ""); // Remove any trailing empty values
+//     reader.onload = function (e) {
+//         const content = e.target.result;
+//         const rows = content.split("\n"); // Split file content into rows
+//         const header = rows[0].split(",").filter(col => col.trim() !== ""); // Remove any trailing empty values
 
-        console.log("CSV Header:", header);
-        console.log("Number of Columns:", header.length);
-        client_info = createClientInfo(header);
-        csvcontent = content;
-    };
+//         console.log("CSV Header:", header);
+//         console.log("Number of Columns:", header.length);
+//         client_info = createClientInfo(header);
+//         csvcontent = content;
+//     };
 
-    reader.readAsText(file);
-}
+//     reader.readAsText(file);
+// }
   
-function appendRow(newRow){
-    // New row data to append
-    const newRowString = newRow.join(",") + "\n"; // Convert new row array to CSV format string
-    
-    if (csvcontent !== ""){
-        csvcontent += newRowString; // Append new row to existing content
+function updateCSVString(){
+   // Optionally include the header row
+    var header = nato_code.join(",");
 
-        console.log("Updated CSV Content:");
-        console.log(csvcontent);
-    }
+    // Convert each row to a CSV line
+    var rows = source_array.map(row => row.join(","));
+
+    // Combine header + rows
+    return [header, ...rows].join("\n");
 }
 
 // Function to trigger the CSV download
 function downloadCSV(content, filename = "file.csv") {
     const blob = new Blob([content], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
@@ -116,7 +73,8 @@ function downloadCSV(content, filename = "file.csv") {
   
 // Event listener for the download button
 downloadButton.addEventListener("click", function () {
-    downloadCSV(csvcontent, "data.csv");
+    let content = updateCSVString()
+    downloadCSV(content, "data.csv");
 });
 
 
@@ -373,8 +331,12 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
                     return;
                 }
             }
-               
+              
+            //update table
             inputValue(`${transcript}`);
+            //update data source
+            console.log(col_num + "," + row_num);
+            source_array[row_num][col_num-1] =  `${transcript}`;
             transcriptionDisplay.textContent = `${transcript}`;
             last_transcript = `${transcript}`;
 
@@ -397,6 +359,12 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         startButton.disabled = true; // Re-enable button when recognition ends
         if(isEnd === false){
             recognition.start(); // Restart recognition 
+        }
+        //it's running on phone or table
+        console.log("tablet?:" + englishVoice);
+        if(!englishVoice){
+            isEnd = false;
+            recognition.start();
         }
     };
 
